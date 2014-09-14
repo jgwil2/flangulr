@@ -54,7 +54,7 @@ def delete_entry():
     abort(401)
   g.db.execute('DELETE FROM entries WHERE id=?', [request.form['id']])
   g.db.commit()
-  flash('Entry %d was successfully deleted', [request.form['id']])
+  flash('Entry ' + str(request.form['id']) + ' was successfully deleted')
   return redirect(url_for('show_entries'))
 
 @app.route('/login', methods=['GET', 'POST'])
