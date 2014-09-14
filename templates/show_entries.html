@@ -4,17 +4,24 @@
     <form action="{{ url_for('add_entry') }}" method="POST" class="add-entry">
       <dl>
         <dt>Title:
-	<dd><input type="text" size="30" name="title">
+	<dd><input type="text" size="30" name="title" />
 	<dt>Text:
 	<dd><textarea name="text" rows="5" cols="40"></textarea>
-	<dd><input type="submit" value="Share">
+	<dd><input type="submit" value="Share" />
       </dl>
     </form>
   {% endif %}
   <ul class="entries">
   {% for entry in entries %}
-    <li><p>ID: {{ entry.id }}</p>
-    <h2>{{ entry.title }}</h2>{{ entry.text|safe }}</li>
+    <li>
+      <h2>{{ entry.title }}</h2>{{ entry.text|safe }}
+      {% if session.logged_in %}
+      <form action="{{ url_for('delete_entry', id = entry.id) }}" method="POST" />
+	<input type="hidden" name="id" value="{{ entry.id }}" />
+	<input type="submit" value="Delete entry {{ entry.id }}" />
+      </form>
+      {% endif %}
+    </li>
   {% else %}
     <li><em>Unbelievable. There's nothing here yet.</em></li>
   {% endfor %}
