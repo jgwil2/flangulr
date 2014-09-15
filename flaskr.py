@@ -48,6 +48,21 @@ def add_entry():
   flash('New entry was successfully posted')
   return redirect(url_for('show_entries'))
 
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit_entry(id):
+  if not session.get('logged_in'):
+    abort(401)
+  if request.method == 'POST':
+    g.db.execute('UPDATE entries SET title=?, text=? WHERE id=?', 
+        [request.form['title'], request.form['text'], id])
+    g.db.commit()
+    flash('Entry ' + str(id) + ' was successfully modified')
+    return redirect(url_for('show_entries'))
+
+  cur = g.db.execute('SELECT id, title, text FROM entries WHERE id=?', [id])
+  entry = [dict(id=row[0], title=row[1], text=row[2]) for row in cur.fetchall()]
+  return render_template('edit_entry.html', entry=entry[0])
+
 @app.route('/delete', methods=['POST'])
 def delete_entry():
   if not session.get('logged_in'):

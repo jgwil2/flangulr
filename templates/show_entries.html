@@ -16,10 +16,7 @@
     <li>
       <h2>{{ entry.title }}</h2>{{ entry.text|safe }}
       {% if session.logged_in %}
-      <form action="{{ url_for('delete_entry') }}" method="POST" />
-	<input type="hidden" name="id" value="{{ entry.id }}" />
-	<input type="submit" value="Delete entry {{ entry.id }}" />
-      </form>
+      <p><a href="{{ url_for('edit_entry', id=entry.id) }}">Modify entry</a></p>
       {% endif %}
     </li>
   {% else %}
