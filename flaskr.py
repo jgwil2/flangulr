@@ -7,15 +7,15 @@ from flask import Flask, request, session, g, redirect, url_for, \
 DATABASE = 'tmp/flaskr.db'
 DEBUG = True
 SECRET_KEY = 'development_key'
-USERNAME = 'admin'
-PASSWORD = 'default'
 
 app = Flask(__name__)
 app.config.from_object(__name__)
 
+# database connection
 def connect_db():
   return sqlite3.connect(app.config['DATABASE'])
 
+# reset database
 def init_db():
   with closing(connect_db()) as db:
     with app.open_resource('schema.sql', mode='r') as f:
@@ -32,12 +32,14 @@ def teardown_request(exception):
   if db is not None:
     db.close()
 
+# index page
 @app.route('/')
 def show_entries():
   cur = g.db.execute('SELECT id, title, text FROM entries ORDER BY id DESC')
   entries = [dict(id=row[0], title=row[1], text=row[2]) for row in cur.fetchall()]
   return render_template('show_entries.html', entries=entries)
 
+# registration page
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
   if request.method == 'POST':
@@ -63,6 +65,7 @@ def register_user():
 
   return render_template('register_user.html')
 
+# add entry url
 @app.route('/add', methods=['POST'])
 def add_entry():
   if not session.get('logged_in'):
@@ -73,6 +76,7 @@ def add_entry():
   flash('New entry was successfully posted')
   return redirect(url_for('show_entries'))
 
+# edit entry page
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_entry(id):
   if not session.get('logged_in'):
@@ -90,6 +94,7 @@ def edit_entry(id):
   entry = [dict(id=row[0], title=row[1], text=row[2]) for row in cur.fetchall()]
   return render_template('edit_entry.html', entry=entry[0])
 
+# delete page url
 @app.route('/delete', methods=['POST'])
 def delete_entry():
   if not session.get('logged_in'):
@@ -101,6 +106,7 @@ def delete_entry():
   flash('Entry ' + str(request.form['id']) + ' was successfully deleted')
   return redirect(url_for('show_entries'))
 
+# login page
 @app.route('/login', methods=['GET', 'POST'])
 def login():
   error = None
@@ -125,6 +131,7 @@ def login():
 
   return render_template('login.html', error=error)
 
+# logout
 @app.route('/logout')
 def logout():
   session.pop('logged_in', None)
