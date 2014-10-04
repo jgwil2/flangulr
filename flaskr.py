@@ -52,12 +52,14 @@ def register_user():
       error = 'Username already registered'
       return render_template('register_user.html', error=error)
 
-    # if no username comes up, insert new
+    # if no username comes up, insert new and log in
     g.db.execute('INSERT INTO users (name, password) VALUES (?, ?)',
         [user_name, pass_word])
     g.db.commit()
     flash('You have successfully registered')
-    return redirect(url_for('login'))
+    session['logged_in'] = True
+    session['username'] = user_name
+    return redirect(url_for('show_entries'))
 
   return render_template('register_user.html')
 
