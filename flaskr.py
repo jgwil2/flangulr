@@ -41,8 +41,20 @@ def show_entries():
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
   if request.method == 'POST':
+    user_name = request.form['name']
+    pass_word = request.form['password']
+
+    # check if username is already in database and return error
+    cur = g.db.execute('SELECT name, password FROM users WHERE name=?',
+        [user_name])
+    user = [dict(name=row[0], password=row[1]) for row in cur.fetchall()]
+    if len(user) > 0:
+      error = 'Username already registered'
+      return render_template('register_user.html', error=error)
+
+    # if no username comes up, insert new
     g.db.execute('INSERT INTO users (name, password) VALUES (?, ?)',
-        [request.form['name'], request.form['password']])
+        [user_name, pass_word])
     g.db.commit()
     flash('You have successfully registered')
     return redirect(url_for('login'))
@@ -63,6 +75,8 @@ def add_entry():
 def edit_entry(id):
   if not session.get('logged_in'):
     abort(401)
+
+  # if entry is updated, update database and return message
   if request.method == 'POST':
     g.db.execute('UPDATE entries SET title=?, text=? WHERE id=?', 
         [request.form['title'], request.form['text'], id])
@@ -78,6 +92,8 @@ def edit_entry(id):
 def delete_entry():
   if not session.get('logged_in'):
     abort(401)
+
+  # if entry is deleted, delete from database
   g.db.execute('DELETE FROM entries WHERE id=?', [request.form['id']])
   g.db.commit()
   flash('Entry ' + str(request.form['id']) + ' was successfully deleted')
@@ -86,6 +102,8 @@ def delete_entry():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
   error = None
+
+  # if login attempted, check for errors and log in or return error
   if request.method == 'POST':
     if request.form['username'] != app.config['USERNAME']:
       error = 'Invalid username'
