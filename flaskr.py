@@ -38,6 +38,17 @@ def show_entries():
   entries = [dict(id=row[0], title=row[1], text=row[2]) for row in cur.fetchall()]
   return render_template('show_entries.html', entries=entries)
 
+@app.route('/register', methods=['GET', 'POST'])
+def register_user():
+  if request.method == 'POST':
+    g.db.execute('INSERT INTO users (name, password) VALUES (?, ?)',
+        [request.form['name'], request.form['password']])
+    g.db.commit()
+    flash('You have successfully registered')
+    return redirect(url_for('login'))
+
+  return render_template('register_user.html')
+
 @app.route('/add', methods=['POST'])
 def add_entry():
   if not session.get('logged_in'):
