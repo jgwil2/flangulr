@@ -41,13 +41,13 @@ def show_entries():
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
   if request.method == 'POST':
-    user_name = request.form['name']
+    user_name = request.form['username']
     pass_word = request.form['password']
 
     # check if username is already in database and return error
-    cur = g.db.execute('SELECT name, password FROM users WHERE name=?',
+    cur = g.db.execute('SELECT name FROM users WHERE name=?',
         [user_name])
-    user = [dict(name=row[0], password=row[1]) for row in cur.fetchall()]
+    user = [dict(name=row[0]) for row in cur.fetchall()]
     if len(user) > 0:
       error = 'Username already registered'
       return render_template('register_user.html', error=error)
@@ -105,14 +105,21 @@ def login():
 
   # if login attempted, check for errors and log in or return error
   if request.method == 'POST':
-    if request.form['username'] != app.config['USERNAME']:
-      error = 'Invalid username'
-    elif request.form['password'] != app.config['PASSWORD']:
-      error = 'Invalid password'
+    user_name = request.form['username']
+    pass_word = request.form['password']
+    cur = g.db.execute('SELECT name, password FROM users WHERE name=?',
+        [user_name])
+    user = [dict(name=row[0], password=row[1]) for row in cur.fetchall()]
+    if len(user) > 0:
+      if user[0]['password'] == pass_word:
+        session['logged_in'] = True
+        session['username'] = user_name
+        flash('You were logged in')
+        return redirect(url_for('show_entries'))
+      else:
+        error = 'Invalid password'
     else:
-      session['logged_in'] = True
-      flash('You were logged in')
-      return redirect(url_for('show_entries'))
+      error = 'Invalid username'
 
   return render_template('login.html', error=error)
 
