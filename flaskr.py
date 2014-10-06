@@ -35,8 +35,10 @@ def teardown_request(exception):
 # index page
 @app.route('/')
 def show_entries():
-  cur = g.db.execute('SELECT id, title, text FROM entries ORDER BY id DESC')
-  entries = [dict(id=row[0], title=row[1], text=row[2]) for row in cur.fetchall()]
+  cur = g.db.execute(
+    'SELECT entries.id, title, text, users.id, name FROM entries, users WHERE user_id = users.id ORDER BY entries.id DESC'
+    )
+  entries = [dict(id=row[0], title=row[1], text=row[2], user=row[3], name=row[4]) for row in cur.fetchall()]
   return render_template('show_entries.html', entries=entries)
 
 # registration page
@@ -58,9 +60,13 @@ def register_user():
     g.db.execute('INSERT INTO users (name, password) VALUES (?, ?)',
         [user_name, pass_word])
     g.db.commit()
+    cur = g.db.execute('SELECT id FROM users WHERE name=?',
+        [user_name])
+    user = [dict(id=row[0]) for row in cur.fetchall()]
     flash('You have successfully registered')
     session['logged_in'] = True
     session['username'] = user_name
+    session['id'] = user[0]['id']
     return redirect(url_for('show_entries'))
 
   return render_template('register_user.html')
@@ -70,8 +76,8 @@ def register_user():
 def add_entry():
   if not session.get('logged_in'):
     abort(401)
-  g.db.execute('INSERT INTO entries (title, text) VALUES (?, ?)',
-      [request.form['title'], request.form['text']])
+  g.db.execute('INSERT INTO entries (title, text, user_id) VALUES (?, ?, ?)',
+      [request.form['title'], request.form['text'], session.get('id')])
   g.db.commit()
   flash('New entry was successfully posted')
   return redirect(url_for('show_entries'))
@@ -79,7 +85,9 @@ def add_entry():
 # edit entry page
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
 def edit_entry(id):
-  if not session.get('logged_in'):
+  cur = g.db.execute('SELECT user_id FROM entries WHERE id=?', [id])
+  entry = [dict(user_id=row[0]) for row in cur.fetchall()]
+  if not session.get('logged_in') or not entry[0]['user_id'] == session.get('id'):
     abort(401)
 
   # if entry is updated, update database and return message
@@ -115,13 +123,14 @@ def login():
   if request.method == 'POST':
     user_name = request.form['username']
     pass_word = request.form['password']
-    cur = g.db.execute('SELECT name, password FROM users WHERE name=?',
+    cur = g.db.execute('SELECT id, name, password FROM users WHERE name=?',
         [user_name])
-    user = [dict(name=row[0], password=row[1]) for row in cur.fetchall()]
+    user = [dict(id=row[0], name=row[1], password=row[2]) for row in cur.fetchall()]
     if len(user) > 0:
       if user[0]['password'] == pass_word:
         session['logged_in'] = True
         session['username'] = user_name
+        session['id'] = user[0]['id']
         flash('You were logged in')
         return redirect(url_for('show_entries'))
       else:
