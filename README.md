@@ -8,10 +8,10 @@ Done:
 * Add full CRUD operations
 * Read users out of database
 * New user registration
+* Join users/entries tables
 
 To do:
 
-* Join users/entries tables
 * Manage user profile
 * Encrypt passwords
 * Accept markdown
