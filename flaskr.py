@@ -36,9 +36,15 @@ def teardown_request(exception):
 @app.route('/')
 def show_entries():
   cur = g.db.execute(
-    'SELECT entries.id, title, text, users.id, name FROM entries, users WHERE user_id = users.id ORDER BY entries.id DESC'
+    'SELECT entries.id, title, text, users.id, name '
+    'FROM entries, users '
+    'WHERE user_id = users.id '
+    'ORDER BY entries.id DESC'
     )
-  entries = [dict(id=row[0], title=row[1], text=row[2], user=row[3], name=row[4]) for row in cur.fetchall()]
+
+  entries =[dict(id=row[0], title=row[1], text=row[2], user=row[3], name=row[4])
+      for row in cur.fetchall()]
+
   return render_template('show_entries.html', entries=entries)
 
 # registration page
@@ -87,7 +93,9 @@ def add_entry():
 def edit_entry(id):
   cur = g.db.execute('SELECT user_id FROM entries WHERE id=?', [id])
   entry = [dict(user_id=row[0]) for row in cur.fetchall()]
-  if not session.get('logged_in') or not entry[0]['user_id'] == session.get('id'):
+
+  if not session.get('logged_in') or \
+  not entry[0]['user_id'] == session.get('id'):
     abort(401)
 
   # if entry is updated, update database and return message
@@ -125,7 +133,9 @@ def login():
     pass_word = request.form['password']
     cur = g.db.execute('SELECT id, name, password FROM users WHERE name=?',
         [user_name])
-    user = [dict(id=row[0], name=row[1], password=row[2]) for row in cur.fetchall()]
+    user = [dict(id=row[0], name=row[1], password=row[2])
+        for row in cur.fetchall()]
+
     if len(user) > 0:
       if user[0]['password'] == pass_word:
         session['logged_in'] = True
