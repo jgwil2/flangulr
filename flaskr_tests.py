@@ -27,6 +27,23 @@ class FlaskrTestCase(unittest.TestCase):
             password = password
             ), follow_redirects = True)
 
+    def add(self, title, text):
+        return self.app.post('/add', data = dict(
+            title = title,
+            text = text
+            ), follow_redirects = True)
+
+    def modify(self, id, title, text):
+        return self.app.post('/edit/%d' %(id), data = dict(
+            title = title,
+            text = text
+            ), follow_redirects = True)
+
+    def delete(self, id):
+        return self.app.post('/delete', data = dict(
+            id = id
+            ), follow_redirects = True)
+
     def logout(self):
         return self.app.get('/logout', follow_redirects = True)
 
@@ -44,15 +61,25 @@ class FlaskrTestCase(unittest.TestCase):
         assert "You were logged in" in rv.data
         assert "Welcome, admin" in rv.data
 
-    def test_register_add(self):
+    def test_add(self):
         self.register('admin', 'default')
-        rv = self.app.post('/add', data = dict(
-            title = '<Hello>',
-            text = '<strong>HTML</strong> allowed here',
-            ), follow_redirects = True)
+        rv = self.add('<Hello>', '<strong>HTML</strong> allowed here')
         assert "Unbelievable. There's nothing here yet." not in rv.data
         assert "&lt;Hello&gt;" in rv.data
         assert "<strong>HTML</strong> allowed here" in rv.data
+
+    def test_modify(self):
+        self.register('admin', 'default')
+        self.add('<Test Post>', '<p>This is a test</p>')
+        rv = self.modify(1, '<New Test Post>', '<p>This is a test 2</p>')
+        assert "&lt;New Test Post&gt;" in rv.data
+        assert "<p>This is a test 2</p>" in rv.data
+
+    def test_delete(self):
+        self.register('admin', 'default')
+        self.add('<Test Post>', '<p>This is a test</p>')
+        rv = self.delete(1)
+        assert "Unbelievable. There's nothing here yet." in rv.data
 
 if __name__ == '__main__':
     unittest.main()

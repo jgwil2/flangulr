@@ -114,12 +114,16 @@ def edit_entry(id):
 # delete page url
 @app.route('/delete', methods=['POST'])
 def delete_entry():
+    entry_id = request.form['id']
+    cur = g.db.execute('SELECT user_id FROM entries WHERE id=?', [entry_id])
+    entry = [dict(user_id=row[0]) for row in cur.fetchall()]
+
     if (not session.get('logged_in') or 
         not entry[0]['user_id'] == session.get('id')):
         abort(401)
 
     # if entry is deleted, delete from database
-    g.db.execute('DELETE FROM entries WHERE id=?', [request.form['id']])
+    g.db.execute('DELETE FROM entries WHERE id=?', [entry_id])
     g.db.commit()
     flash('Entry ' + str(request.form['id']) + ' was successfully deleted')
     return redirect(url_for('show_entries'))
