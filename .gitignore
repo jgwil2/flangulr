@@ -6,3 +6,6 @@ include
 
 # Mac OS X custom attribute files
 .DS_Store
+
+# npm packages
+node_modules

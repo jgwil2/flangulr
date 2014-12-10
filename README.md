@@ -1,7 +1,7 @@
-flaskr
-======
+flangulr
+========
 
-Followed the [tutorial](http://flask.pocoo.org/docs/0.10/tutorial/) and now I'm going to expand on it.
+Converting the Flask demo app [flaskr](http://flask.pocoo.org/docs/0.10/tutorial/) to a single page app with AngularJS on the frontend and a RESTful API with Flask on the backend.
 
 Done:
 

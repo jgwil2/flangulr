@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="flangulr">
+<head>
+	<meta charset="UTF-8">
+	<base href="/">
+	<title>Flangulr</title>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+	<script src="{{ url_for('static', filename='vendor/jquery/dist/jquery.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendor/angular/angular.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='vendor/angular-ui-router/release/angular-ui-router.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/controllers.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/services.js') }}"></script>
+</head>
+
+{% raw %}
+
+<body>
+	<div class="page">
+		<div ng-include="'header.html'"></div>
+		<div ui-view></div>
+	</div>
+</body>
+
+
+
+<!-- Header template -->
+<script type="text/ng-template" id="header.html">
+<h1>Flangulr</h1>
+<div class="metanav">
+	<div ng-if="!user">
+		<a ui-sref="login">Log in</a>
+		<a ui-sref="register">Register</a>
+	</div>
+	<div ng-if="user">
+		<p>Welcome, {{ user }}</p>
+		<a href ng-click="logout()">Log out</a>
+	</div>
+</div>
+<div ng-if="flash.getMessage()">
+	<div class="flash">{{ flash.getMessage() }}</div>
+</div>
+</script>
+
+
+
+<!-- Home page template -->
+<script type="text/ng-template" id="home.html">
+
+<div ng-show="user">
+	<form ng-submit="addEntry()" class="add-entry" novalidate>
+		<dl>
+			<dt>Title:</dt>
+			<dd><input ng-model="entry.title" type="text" size="30" name="title" /></dd>
+			<dt>Text:</dt>
+			<dd><textarea ng-model="entry.text" name="text" rows="5" cols="40"></textarea></dd>
+			<dd><input type="submit" value="Share" /></dd>
+		</dl>
+	</form>
+</div>
+
+<ul class="entries">
+	<div ng-show="entries">
+		<div ng-repeat="entry in entries">
+			<li>
+				<h2>{{ entry.title }}</h2>
+				<p>{{ entry.text }}</p>
+				<p>{{ entry.name }}</p>
+
+				<div ng-if="user == entry.name">
+					<p><a href="/edit/{{ entry.id }}">Modify entry</a></p>
+				</div>
+			</li>
+		</div>
+	</div>
+	<div ng-show="entries.length === 0">
+		<li><em>Unbelievable. Theres nothing here yet.</em></li>
+	</div>
+</ul>
+</script>
+
+
+
+<!-- Edit page template -->
+<script type="text/ng-template" id="edit.html">
+<form ng-submit="updateEntry()" class="add-entry" novalidate>
+	<dl>
+		<dt>Title:</dt>
+		<dd><input ng-model="entry.title" type="text" size="30" name="title" /></dd>
+		<dt>Text:</dt>
+		<dd><textarea ng-model="entry.text" name="text" rows="5" cols="40"></textarea></dd>
+		<dd>
+			<input type="submit" value="Update" />
+			<input ng-click="deleteEntry()" type="button" value="Delete" />
+		</dd>
+	</dl>
+</form>
+</script>
+
+
+
+<!-- Login page template -->
+<script type="text/ng-template" id="login.html">
+
+<h2>Login</h2>
+<!--
+{% if error %}
+	<p class="error"><strong>{{ error }}</strong></p>
+{% endif %}
+-->
+<form ng-submit="login()" novalidate>
+	<dl>
+		<dt>Username:</dt>
+		<dd><input type="text" name="username" ng-model="credentials.username" /></dd>
+		<dt>Password:</dt>
+		<dd><input type="password" name="password" ng-model="credentials.password" /></dd>
+		<dd><input type="submit" value="Login"></dd>
+	</dl>
+</form>
+<p><a ui-sref="home">See all entries</a></p>
+</script>
+
+
+
+<!-- Registration page template -->
+<script type="text/ng-template" id="register.html">
+
+<h2>Register</h2>
+<form ng-submit="register()" novalidate>
+	<dl>
+		<dt>Name:</dt>
+		<dd><input type="text" name="username" /></dd>
+		<dt>Password:</dt>
+		<dd><input type="password" name="password" /></dd>
+		<dd><input type="submit" value="Register"></dd>
+	</dl>
+</form>
+<p><a ui-sref="home">See all entries</a></p>
+</script>
+
+{% endraw %}
+</html>
