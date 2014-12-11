@@ -4,13 +4,11 @@
 	<meta charset="UTF-8">
 	<base href="/">
 	<title>Flangulr</title>
-	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
-	<script src="{{ url_for('static', filename='vendor/jquery/dist/jquery.min.js') }}"></script>
-	<script src="{{ url_for('static', filename='vendor/angular/angular.min.js') }}"></script>
-	<script src="{{ url_for('static', filename='vendor/angular-ui-router/release/angular-ui-router.min.js') }}"></script>
-	<script src="{{ url_for('static', filename='js/app.js') }}"></script>
-	<script src="{{ url_for('static', filename='js/controllers.js') }}"></script>
-	<script src="{{ url_for('static', filename='js/services.js') }}"></script>
+	<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='assets/css/styles.css') }}">
+	<script src="{{ url_for('static', filename='assets/vendor/jquery/dist/jquery.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='assets/vendor/angular/angular.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='assets/vendor/angular-ui-router/release/angular-ui-router.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='dist/all.min.js') }}"></script>
 </head>
 
 {% raw %}
@@ -129,9 +127,9 @@
 <form ng-submit="register()" novalidate>
 	<dl>
 		<dt>Name:</dt>
-		<dd><input type="text" name="username" /></dd>
+		<dd><input ng-model="credentials.username" type="text" name="username" /></dd>
 		<dt>Password:</dt>
-		<dd><input type="password" name="password" /></dd>
+		<dd><input ng-model="credentials.password" type="password" name="password" /></dd>
 		<dd><input type="submit" value="Register"></dd>
 	</dl>
 </form>
