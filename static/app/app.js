@@ -1,12 +1,23 @@
-'use strict';
+// use function form of 'use strict'
 
 // define app dependencies
 var flangulr = angular.module('flangulr', [
-	'flangulrControllers',
 	'ui.router',
-	'flangulrServices'
+	'authModule',
+	'flashModule',
+	'homeModule',
+	'loginModule',
+	'registerModule'
 ]);
 
+var authModule = angular.module('authModule', []),
+	flashModule = angular.module('flashModule', []),
+	homeModule = angular.module('homeModule', []),
+	loginModule = angular.module('loginModule', []),
+	registerModule = angular.module('registerModule', []);
+
+
+// ui-router
 flangulr.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
 	function($stateProvider, $urlRouterProvider, $locationProvider){
 		// use HTML5 history api to avoid hash
@@ -59,7 +70,7 @@ flangulr.run(['$rootScope', 'AuthService', '$location', 'FlashService', '$state'
 			AuthService.logout().success(function(){
 				$location.path('/login');
 			});
-		}
+		};
 
 		// $rootScope listens for $locationChangeStart, an event that is 
 		// broadcast at begining of URL change
