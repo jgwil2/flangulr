@@ -184,22 +184,6 @@ flashModule.factory('FlashService', ['$rootScope',
 	}
 ]);
 
-loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$location',
-	function($scope, AuthService, $location){
-
-		// initialize credentials object
-		$scope.credentials = {};
-
-		// on form submit call AuthService's login function with user's credentials
-		// on success, redirect to home page
-		$scope.login = function(){
-			AuthService.login($scope.credentials).success(function(){
-				$location.path('/');
-			});
-		};
-	}
-]);
-
 // CacheService is the custom cache where contacts will be stored
 homeModule.factory('CacheService', ['$cacheFactory',
 	function($cacheFactory){
@@ -343,6 +327,22 @@ homeModule.controller('HomeCtrl', ['$scope', '$location', 'DataService', '$state
 		// delete entry
 		$scope.deleteEntry = function(){
 			DataService.deleteEntry($scope.entry.id).success(function(){
+				$location.path('/');
+			});
+		};
+	}
+]);
+
+loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$location',
+	function($scope, AuthService, $location){
+
+		// initialize credentials object
+		$scope.credentials = {};
+
+		// on form submit call AuthService's login function with user's credentials
+		// on success, redirect to home page
+		$scope.login = function(){
+			AuthService.login($scope.credentials).success(function(){
 				$location.path('/');
 			});
 		};

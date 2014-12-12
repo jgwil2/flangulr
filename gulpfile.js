@@ -36,6 +36,7 @@ gulp.task('html', function(){
 // Watch Files For Changes
 gulp.task('watch', function() {
     gulp.watch('static/app/**/*.js', ['lint', 'scripts']);
+    gulp.watch('static/app/**/*.html', ['html']);
 });
 
 // Default Task
