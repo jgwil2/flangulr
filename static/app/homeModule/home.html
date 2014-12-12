@@ -1,0 +1,33 @@
+<!-- Home page template -->
+<script type="text/ng-template" id="home.html">
+
+<div ng-show="user">
+	<form ng-submit="addEntry()" class="add-entry" novalidate>
+		<dl>
+			<dt>Title:</dt>
+			<dd><input ng-model="entry.title" type="text" size="30" name="title" /></dd>
+			<dt>Text:</dt>
+			<dd><textarea ng-model="entry.text" name="text" rows="5" cols="40"></textarea></dd>
+			<dd><input type="submit" value="Share" /></dd>
+		</dl>
+	</form>
+</div>
+<ul class="entries">
+	<div ng-show="entries">
+		<div ng-repeat="entry in entries">
+			<li>
+				<h2>{{ entry.title }}</h2>
+				<p>{{ entry.text }}</p>
+				<p>{{ entry.name }}</p>
+
+				<div ng-if="user == entry.name">
+					<p><a href="/edit/{{ entry.id }}">Modify entry</a></p>
+				</div>
+			</li>
+		</div>
+	</div>
+	<div ng-show="entries.length === 0">
+		<li><em>Unbelievable. Theres nothing here yet.</em></li>
+	</div>
+</ul>
+</script>

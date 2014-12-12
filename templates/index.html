@@ -12,7 +12,6 @@
 </head>
 
 {% raw %}
-
 <body>
 	<div class="page">
 		<div ng-include="'header.html'"></div>
@@ -20,7 +19,7 @@
 	</div>
 </body>
 
-
+<!-- Gulp include files here -->
 
 <!-- Header template -->
 <script type="text/ng-template" id="header.html">
@@ -40,7 +39,21 @@
 </div>
 </script>
 
-
+<!-- Edit page template -->
+<script type="text/ng-template" id="edit.html">
+<form ng-submit="updateEntry()" class="add-entry" novalidate>
+	<dl>
+		<dt>Title:</dt>
+		<dd><input ng-model="entry.title" type="text" size="30" name="title" /></dd>
+		<dt>Text:</dt>
+		<dd><textarea ng-model="entry.text" name="text" rows="5" cols="40"></textarea></dd>
+		<dd>
+			<input type="submit" value="Update" />
+			<input ng-click="deleteEntry()" type="button" value="Delete" />
+		</dd>
+	</dl>
+</form>
+</script>
 
 <!-- Home page template -->
 <script type="text/ng-template" id="home.html">
@@ -56,7 +69,6 @@
 		</dl>
 	</form>
 </div>
-
 <ul class="entries">
 	<div ng-show="entries">
 		<div ng-repeat="entry in entries">
@@ -76,26 +88,6 @@
 	</div>
 </ul>
 </script>
-
-
-
-<!-- Edit page template -->
-<script type="text/ng-template" id="edit.html">
-<form ng-submit="updateEntry()" class="add-entry" novalidate>
-	<dl>
-		<dt>Title:</dt>
-		<dd><input ng-model="entry.title" type="text" size="30" name="title" /></dd>
-		<dt>Text:</dt>
-		<dd><textarea ng-model="entry.text" name="text" rows="5" cols="40"></textarea></dd>
-		<dd>
-			<input type="submit" value="Update" />
-			<input ng-click="deleteEntry()" type="button" value="Delete" />
-		</dd>
-	</dl>
-</form>
-</script>
-
-
 
 <!-- Login page template -->
 <script type="text/ng-template" id="login.html">
@@ -118,8 +110,6 @@
 <p><a ui-sref="home">See all entries</a></p>
 </script>
 
-
-
 <!-- Registration page template -->
 <script type="text/ng-template" id="register.html">
 
@@ -135,6 +125,8 @@
 </form>
 <p><a ui-sref="home">See all entries</a></p>
 </script>
+
+<!-- End gulp include files -->
 
 {% endraw %}
 </html>

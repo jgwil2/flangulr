@@ -1,0 +1,20 @@
+<!-- Login page template -->
+<script type="text/ng-template" id="login.html">
+
+<h2>Login</h2>
+<!--
+{% if error %}
+	<p class="error"><strong>{{ error }}</strong></p>
+{% endif %}
+-->
+<form ng-submit="login()" novalidate>
+	<dl>
+		<dt>Username:</dt>
+		<dd><input type="text" name="username" ng-model="credentials.username" /></dd>
+		<dt>Password:</dt>
+		<dd><input type="password" name="password" ng-model="credentials.password" /></dd>
+		<dd><input type="submit" value="Login"></dd>
+	</dl>
+</form>
+<p><a ui-sref="home">See all entries</a></p>
+</script>

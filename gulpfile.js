@@ -1,11 +1,10 @@
-// Include gulp
-var gulp = require('gulp');
-
-// Include dependencies
-var jshint = require('gulp-jshint');
-var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
-var rename = require('gulp-rename');
+// Include gulp and dependencies
+var gulp = require('gulp'),
+    jshint = require('gulp-jshint'),
+    concat = require('gulp-concat'),
+    uglify = require('gulp-uglify'),
+    rename = require('gulp-rename'),
+    fileInclude = require('gulp-file-include');
 
 // Lint Task
 gulp.task('lint', function() {
@@ -24,10 +23,22 @@ gulp.task('scripts', function() {
         .pipe(gulp.dest('static/dist'));
 });
 
+// Include html templates in index.html
+gulp.task('html', function(){
+    return gulp.src('static/app/layout.html')
+        .pipe(fileInclude({
+            prefix: '@@',
+            basepath: 'static/app/'
+        }))
+        .pipe(rename('index.html'))
+        .pipe(gulp.dest('templates/'));
+});
+
 // Watch Files For Changes
 gulp.task('watch', function() {
     gulp.watch('static/app/**/*.js', ['lint', 'scripts']);
+    gulp.watch('static/app/**/*.html', ['html']);
 });
 
 // Default Task
-gulp.task('default', ['lint', 'scripts', 'watch']);
+gulp.task('default', ['lint', 'scripts', 'html', 'watch']);

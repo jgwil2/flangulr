@@ -58,7 +58,7 @@ flangulr.run(['$rootScope', 'AuthService', '$location', 'FlashService', '$state'
 		// Add $state to $rootScope so it will be accessible everywhere
 		$rootScope.$state = $state;
 
-		// Add FlashService to $rootScope to avoid injecting it in every controller
+		// Add FlashService to $rootScope to avoid injecting it in every controller (inject $rootScope into FlashService instead?)
 		$rootScope.flash = FlashService;
 
 		// UNPROTECTED_ROUTES is array of all routes not requiring authentication

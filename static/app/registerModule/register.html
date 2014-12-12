@@ -1,0 +1,15 @@
+<!-- Registration page template -->
+<script type="text/ng-template" id="register.html">
+
+<h2>Register</h2>
+<form ng-submit="register()" novalidate>
+	<dl>
+		<dt>Name:</dt>
+		<dd><input ng-model="credentials.username" type="text" name="username" /></dd>
+		<dt>Password:</dt>
+		<dd><input ng-model="credentials.password" type="password" name="password" /></dd>
+		<dd><input type="submit" value="Register"></dd>
+	</dl>
+</form>
+<p><a ui-sref="home">See all entries</a></p>
+</script>
