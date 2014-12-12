@@ -24,7 +24,7 @@ gulp.task('scripts', function() {
 });
 
 gulp.task('html', function(){
-    return gulp.src('static/app/shared/layout.html')
+    return gulp.src('static/app/layout.html')
         .pipe(fileInclude({
             prefix: '@@',
             basepath: 'static/app/'
