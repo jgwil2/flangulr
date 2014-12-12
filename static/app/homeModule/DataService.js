@@ -48,10 +48,14 @@ homeModule.factory('DataService', ['$http', 'CacheService', '$q', 'AuthService',
 					return $q.when(CacheService.get('entries'));
 				}
 				else{
-					var entries = $http.get('/api/posts')
-						.then(function(response){
+					var entries = $http.get('/api/posts').then(
+						function(response){
 							cacheEntries(response.data.entries);
 							return response.data.entries;
+						},
+						function(response){
+							FlashService.showError(response.data.message);
+							return response.data.message;
 						});
 					return entries;
 				}
@@ -63,7 +67,7 @@ homeModule.factory('DataService', ['$http', 'CacheService', '$q', 'AuthService',
 					FlashService.showMessage(data.message);
 				});
 				entry.error(function(data){
-					FlashService.showMessage(data.message);
+					FlashService.showError(data.message);
 				});
 				return entry;
 			},
@@ -74,7 +78,7 @@ homeModule.factory('DataService', ['$http', 'CacheService', '$q', 'AuthService',
 					FlashService.setMessage(data.message);
 				});
 				entry.error(function(data){
-					FlashService.showMessage(data.message);
+					FlashService.showError(data.message);
 				});
 				return entry;
 			},
@@ -85,7 +89,7 @@ homeModule.factory('DataService', ['$http', 'CacheService', '$q', 'AuthService',
 					FlashService.setMessage(data.message);
 				});
 				entry.error(function(data){
-					FlashService.showMessage(data.message);
+					FlashService.showError(data.message);
 				});
 				return entry;
 			}

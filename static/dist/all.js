@@ -58,7 +58,7 @@ flangulr.run(['$rootScope', 'AuthService', '$location', 'FlashService', '$state'
 		// Add $state to $rootScope so it will be accessible everywhere
 		$rootScope.$state = $state;
 
-		// Add FlashService to $rootScope to avoid injecting it in every controller (inject $rootScope into FlashService instead?)
+		// Add FlashService to $rootScope to avoid injecting it in every controller
 		$rootScope.flash = FlashService;
 
 		// UNPROTECTED_ROUTES is array of all routes not requiring authentication
@@ -158,18 +158,25 @@ flashModule.factory('FlashService', ['$rootScope',
 		// set message queue and current message; when route
 		// changes complete, current message gets first message
 		// in queue or nothing if there is nothing left
-		var queue = [];
-		var currentMessage = '';
+		var messageQueue = [],
+			errorQueue = [],
+			currentMessage = '',
+			currentError = '';
 
 		$rootScope.$on('$locationChangeSuccess', function(){
-			currentMessage = queue.shift() || '';
+			currentMessage = messageQueue.shift() || '';
+			errorMessage = errorQueue.shift() || '';
 		});
 
 		// public methods
-		// Note: because on success we expect route to change
-		// whereas on error we expect route to stay the same,
-		// setMessage will show after one route change and
-		// showMessage will add message immediately
+		// Note: two methods each for setting error/success messages:
+		// set methods expect route to change and should be used with
+		// $location.path() setter
+		// show methods will show message immediately and should be
+		// used when route will not change
+		// Typically a route will change on success and remain the
+		// same on error, but all four methods are provided as this 
+		// is not lways the case.
 		return {
 			setMessage: function(message){
 				queue.push(message);
@@ -179,6 +186,15 @@ flashModule.factory('FlashService', ['$rootScope',
 			},
 			getMessage: function(){
 				return currentMessage;
+			},
+			setError: function(error){
+				queue.push(error);
+			},
+			showError: function(error){
+				currentError = error;
+			},
+			getError: function(){
+				return currentError;
 			}
 		};
 	}
@@ -240,10 +256,14 @@ homeModule.factory('DataService', ['$http', 'CacheService', '$q', 'AuthService',
 					return $q.when(CacheService.get('entries'));
 				}
 				else{
-					var entries = $http.get('/api/posts')
-						.then(function(response){
+					var entries = $http.get('/api/posts').then(
+						function(response){
 							cacheEntries(response.data.entries);
 							return response.data.entries;
+						},
+						function(response){
+							FlashService.showError(response.data.message);
+							return response.data.message;
 						});
 					return entries;
 				}
@@ -255,7 +275,7 @@ homeModule.factory('DataService', ['$http', 'CacheService', '$q', 'AuthService',
 					FlashService.showMessage(data.message);
 				});
 				entry.error(function(data){
-					FlashService.showMessage(data.message);
+					FlashService.showError(data.message);
 				});
 				return entry;
 			},
@@ -266,7 +286,7 @@ homeModule.factory('DataService', ['$http', 'CacheService', '$q', 'AuthService',
 					FlashService.setMessage(data.message);
 				});
 				entry.error(function(data){
-					FlashService.showMessage(data.message);
+					FlashService.showError(data.message);
 				});
 				return entry;
 			},
@@ -277,7 +297,7 @@ homeModule.factory('DataService', ['$http', 'CacheService', '$q', 'AuthService',
 					FlashService.setMessage(data.message);
 				});
 				entry.error(function(data){
-					FlashService.showMessage(data.message);
+					FlashService.showError(data.message);
 				});
 				return entry;
 			}
@@ -373,7 +393,7 @@ registerModule.factory('RegisterService', ['$http', 'FlashService',
 					FlashService.setMessage(data.message);
 				});
 				register.error(function(data){
-					FlashService.showMessage(data.message);
+					FlashService.showError(data.message);
 				});
 				return register;
 			}

@@ -14,4 +14,7 @@
 <div ng-if="flash.getMessage()">
 	<div class="flash">{{ flash.getMessage() }}</div>
 </div>
+<div ng-if="flash.getError()">
+	<p class="error"><strong>{{ flash.getError() }}</strong></p>
+</div>
 </script>

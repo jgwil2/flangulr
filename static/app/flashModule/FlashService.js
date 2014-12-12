@@ -6,18 +6,25 @@ flashModule.factory('FlashService', ['$rootScope',
 		// set message queue and current message; when route
 		// changes complete, current message gets first message
 		// in queue or nothing if there is nothing left
-		var queue = [];
-		var currentMessage = '';
+		var messageQueue = [],
+			errorQueue = [],
+			currentMessage = '',
+			currentError = '';
 
 		$rootScope.$on('$locationChangeSuccess', function(){
-			currentMessage = queue.shift() || '';
+			currentMessage = messageQueue.shift() || '';
+			errorMessage = errorQueue.shift() || '';
 		});
 
 		// public methods
-		// Note: because on success we expect route to change
-		// whereas on error we expect route to stay the same,
-		// setMessage will show after one route change and
-		// showMessage will add message immediately
+		// Note: two methods each for setting error/success messages:
+		// set methods expect route to change and should be used with
+		// $location.path() setter
+		// show methods will show message immediately and should be
+		// used when route will not change
+		// Typically a route will change on success and remain the
+		// same on error, but all four methods are provided as this 
+		// is not lways the case.
 		return {
 			setMessage: function(message){
 				queue.push(message);
@@ -27,6 +34,15 @@ flashModule.factory('FlashService', ['$rootScope',
 			},
 			getMessage: function(){
 				return currentMessage;
+			},
+			setError: function(error){
+				queue.push(error);
+			},
+			showError: function(error){
+				currentError = error;
+			},
+			getError: function(){
+				return currentError;
 			}
 		};
 	}

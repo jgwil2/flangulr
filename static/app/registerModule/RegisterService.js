@@ -9,7 +9,7 @@ registerModule.factory('RegisterService', ['$http', 'FlashService',
 					FlashService.setMessage(data.message);
 				});
 				register.error(function(data){
-					FlashService.showMessage(data.message);
+					FlashService.showError(data.message);
 				});
 				return register;
 			}
