@@ -23,6 +23,7 @@ gulp.task('scripts', function() {
         .pipe(gulp.dest('static/dist'));
 });
 
+// Include html templates in index.html
 gulp.task('html', function(){
     return gulp.src('static/app/layout.html')
         .pipe(fileInclude({
