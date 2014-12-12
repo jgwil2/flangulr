@@ -58,7 +58,7 @@ flangulr.run(['$rootScope', 'AuthService', '$location', 'FlashService', '$state'
 		// Add $state to $rootScope so it will be accessible everywhere
 		$rootScope.$state = $state;
 
-		// Add FlashService to $rootScope to avoid injecting it in every controller
+		// Add FlashService to $rootScope to avoid injecting it in every controller (inject $rootScope into FlashService instead?)
 		$rootScope.flash = FlashService;
 
 		// UNPROTECTED_ROUTES is array of all routes not requiring authentication
@@ -180,6 +180,22 @@ flashModule.factory('FlashService', ['$rootScope',
 			getMessage: function(){
 				return currentMessage;
 			}
+		};
+	}
+]);
+
+loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$location',
+	function($scope, AuthService, $location){
+
+		// initialize credentials object
+		$scope.credentials = {};
+
+		// on form submit call AuthService's login function with user's credentials
+		// on success, redirect to home page
+		$scope.login = function(){
+			AuthService.login($scope.credentials).success(function(){
+				$location.path('/');
+			});
 		};
 	}
 ]);
@@ -361,22 +377,6 @@ registerModule.factory('RegisterService', ['$http', 'FlashService',
 				});
 				return register;
 			}
-		};
-	}
-]);
-
-loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$location',
-	function($scope, AuthService, $location){
-
-		// initialize credentials object
-		$scope.credentials = {};
-
-		// on form submit call AuthService's login function with user's credentials
-		// on success, redirect to home page
-		$scope.login = function(){
-			AuthService.login($scope.credentials).success(function(){
-				$location.path('/');
-			});
 		};
 	}
 ]);

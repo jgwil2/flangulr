@@ -1,0 +1,15 @@
+<!-- Edit page template -->
+<script type="text/ng-template" id="edit.html">
+<form ng-submit="updateEntry()" class="add-entry" novalidate>
+	<dl>
+		<dt>Title:</dt>
+		<dd><input ng-model="entry.title" type="text" size="30" name="title" /></dd>
+		<dt>Text:</dt>
+		<dd><textarea ng-model="entry.text" name="text" rows="5" cols="40"></textarea></dd>
+		<dd>
+			<input type="submit" value="Update" />
+			<input ng-click="deleteEntry()" type="button" value="Delete" />
+		</dd>
+	</dl>
+</form>
+</script>

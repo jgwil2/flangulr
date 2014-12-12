@@ -1,0 +1,17 @@
+<!-- Header template -->
+<script type="text/ng-template" id="header.html">
+<h1>Flangulr</h1>
+<div class="metanav">
+	<div ng-if="!user">
+		<a ui-sref="login">Log in</a>
+		<a ui-sref="register">Register</a>
+	</div>
+	<div ng-if="user">
+		<p>Welcome, {{ user }}</p>
+		<a href ng-click="logout()">Log out</a>
+	</div>
+</div>
+<div ng-if="flash.getMessage()">
+	<div class="flash">{{ flash.getMessage() }}</div>
+</div>
+</script>
