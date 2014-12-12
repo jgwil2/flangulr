@@ -37,6 +37,9 @@
 <div ng-if="flash.getMessage()">
 	<div class="flash">{{ flash.getMessage() }}</div>
 </div>
+<div ng-if="flash.getError()">
+	<p class="error"><strong>{{ flash.getError() }}</strong></p>
+</div>
 </script>
 
 <!-- Edit page template -->
@@ -93,11 +96,6 @@
 <script type="text/ng-template" id="login.html">
 
 <h2>Login</h2>
-<!--
-{% if error %}
-	<p class="error"><strong>{{ error }}</strong></p>
-{% endif %}
--->
 <form ng-submit="login()" novalidate>
 	<dl>
 		<dt>Username:</dt>
