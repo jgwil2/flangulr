@@ -11,7 +11,7 @@ flashModule.factory('FlashService', ['$rootScope',
 			currentMessage = '',
 			currentError = '';
 
-		$rootScope.$on('$locationChangeSuccess', function(){
+		$rootScope.$on('$stateChangeSuccess', function(){
 			currentMessage = messageQueue.shift() || '';
 			errorMessage = errorQueue.shift() || '';
 		});
@@ -19,7 +19,7 @@ flashModule.factory('FlashService', ['$rootScope',
 		// public methods
 		// Note: two methods each for setting error/success messages:
 		// set methods expect route to change and should be used with
-		// $location.path() setter
+		// $state.go()
 		// show methods will show message immediately and should be
 		// used when route will not change
 		// Typically a route will change on success and remain the
@@ -27,7 +27,7 @@ flashModule.factory('FlashService', ['$rootScope',
 		// is not lways the case.
 		return {
 			setMessage: function(message){
-				queue.push(message);
+				messageQueue.push(message);
 			},
 			showMessage: function(message){
 				currentMessage = message;
@@ -36,7 +36,7 @@ flashModule.factory('FlashService', ['$rootScope',
 				return currentMessage;
 			},
 			setError: function(error){
-				queue.push(error);
+				errorQueue.push(error);
 			},
 			showError: function(error){
 				currentError = error;

@@ -52,8 +52,21 @@ flangulr.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
 
 // appwide concerns can be placed on $rootScope where
 // they will be accessible to all child scopes
-flangulr.run(['$rootScope', 'AuthService', '$location', 'FlashService', '$state',
-	function($rootScope, AuthService, $location, FlashService, $state){
+flangulr.run(['$rootScope', 'AuthService', 'FlashService', '$state',
+	function($rootScope, AuthService, FlashService, $state){
+
+		// UNPROTECTED_ROUTES is array of all routes not requiring authentication
+		var UNPROTECTED_ROUTES = ['home', 'login', 'register'];
+
+		var redirectIfNotAuthorized = function(toState){
+			// add current user to root scope and update when routes change
+			$rootScope.user = AuthService.getCurrentUser();
+			// if new $state.current is protected and user is not logged in,
+			// redirect user to login page
+			if(UNPROTECTED_ROUTES.indexOf(toState.name) < 0 && !AuthService.getCurrentUser()){
+				$state.go('login');
+			}
+		};
 
 		// Add $state to $rootScope so it will be accessible everywhere
 		$rootScope.$state = $state;
@@ -61,29 +74,21 @@ flangulr.run(['$rootScope', 'AuthService', '$location', 'FlashService', '$state'
 		// Add FlashService to $rootScope to avoid injecting it in every controller
 		$rootScope.flash = FlashService;
 
-		// UNPROTECTED_ROUTES is array of all routes not requiring authentication
-		var UNPROTECTED_ROUTES = ['/', '/login', '/register'];
-
 		// on form submit, call AuthService's logout function
 		// on success redirect to login page
 		$rootScope.logout = function(){
 			AuthService.logout().success(function(){
-				$location.path('/login');
+				$state.go('login');
 			});
 		};
 
-		// $rootScope listens for $locationChangeStart, an event that is 
-		// broadcast at begining of URL change
-		$rootScope.$on('$locationChangeStart', function(event){
-
-			// add current user to root scope and update when routes change
-			$rootScope.user = AuthService.getCurrentUser();
-
-			// if new $location.path() is protected and user is not logged in,
-			// redirect user to login page
-			if(UNPROTECTED_ROUTES.indexOf($location.path()) < 0 && !AuthService.getCurrentUser()){
-				$location.path('/login');
-			}
+		// $rootScope listens for $stateChangeSuccess, an event that is
+		// broadcast at the end of state change
+		// its callback takes parameter toState, which will be compared to whitelist
+		// $stateChangeSuccess is used rather than $stateChangeStart because when the app
+		// is initially loaded, there may be no state against which to compare the whitelist
+		$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams){
+			redirectIfNotAuthorized(toState);
 		});
 	}
 ]);

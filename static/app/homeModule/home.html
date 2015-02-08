@@ -21,7 +21,7 @@
 				<p>{{ entry.name }}</p>
 
 				<div ng-if="user == entry.name">
-					<p><a href="/edit/{{ entry.id }}">Modify entry</a></p>
+					<p><a ui-sref="edit({entryId: entry.id})">Modify entry</a></p>
 				</div>
 			</li>
 		</div>
@@ -29,5 +29,6 @@
 	<div ng-show="entries.length === 0">
 		<li><em>Unbelievable. Theres nothing here yet.</em></li>
 	</div>
+	<div ui-view></div>
 </ul>
 </script>

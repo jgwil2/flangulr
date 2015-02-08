@@ -8,7 +8,7 @@
 	<script src="{{ url_for('static', filename='assets/vendor/jquery/dist/jquery.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='assets/vendor/angular/angular.min.js') }}"></script>
 	<script src="{{ url_for('static', filename='assets/vendor/angular-ui-router/release/angular-ui-router.min.js') }}"></script>
-	<script src="{{ url_for('static', filename='dist/all.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='dist/all.js') }}"></script>
 </head>
 
 {% raw %}
@@ -56,6 +56,7 @@
 		</dd>
 	</dl>
 </form>
+<p><a ui-sref="home">Cancel</a></p>
 </script>
 
 <!-- Home page template -->
@@ -81,7 +82,7 @@
 				<p>{{ entry.name }}</p>
 
 				<div ng-if="user == entry.name">
-					<p><a href="/edit/{{ entry.id }}">Modify entry</a></p>
+					<p><a ui-sref="edit({entryId: entry.id})">Modify entry</a></p>
 				</div>
 			</li>
 		</div>
@@ -89,6 +90,7 @@
 	<div ng-show="entries.length === 0">
 		<li><em>Unbelievable. Theres nothing here yet.</em></li>
 	</div>
+	<div ui-view></div>
 </ul>
 </script>
 

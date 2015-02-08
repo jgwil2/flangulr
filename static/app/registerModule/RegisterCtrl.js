@@ -1,5 +1,5 @@
 
-registerModule.controller('RegisterCtrl', ['$scope', 'RegisterService', '$location',
+registerModule.controller('RegisterCtrl', ['$scope', 'RegisterService', '$state',
 	function($scope, RegisterService, $location){
 
 		// initialize credentials object
@@ -7,7 +7,7 @@ registerModule.controller('RegisterCtrl', ['$scope', 'RegisterService', '$locati
 
 		$scope.register = function(){
 			RegisterService.registerUser($scope.credentials).success(function(){
-				$location.path('/login');
+				$state.go('login');
 			});
 		};
 	}

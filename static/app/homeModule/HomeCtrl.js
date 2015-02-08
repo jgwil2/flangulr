@@ -1,5 +1,5 @@
 
-homeModule.controller('HomeCtrl', ['$scope', '$location', 'DataService', '$stateParams',
+homeModule.controller('HomeCtrl', ['$scope', '$state', 'DataService', '$stateParams',
 	function($scope, $location, DataService, $stateParams){
 
 		// init entries object
@@ -34,14 +34,14 @@ homeModule.controller('HomeCtrl', ['$scope', '$location', 'DataService', '$state
 		// update entry
 		$scope.updateEntry = function(){
 			DataService.updateEntry($scope.entry.id, $scope.entry).success(function(){
-				$location.path('/');
+				$state.go('home');
 			});
 		};
 
 		// delete entry
 		$scope.deleteEntry = function(){
 			DataService.deleteEntry($scope.entry.id).success(function(){
-				$location.path('/');
+				$state.go('home');
 			});
 		};
 	}

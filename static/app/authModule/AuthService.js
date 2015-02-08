@@ -22,8 +22,7 @@ authModule.factory('AuthService', ['SessionService', '$http', 'FlashService', 'C
 				var login = $http.post('/auth/login', credentials);
 				login.success(function(data){
 					cacheSession(data.user);
-					//CacheService.put('contacts', data.contacts);
-					//CacheService.put('tags', data.tags);
+					FlashService.setMessage(data.message);
 				});
 				login.error(function(data){
 					FlashService.showMessage(data.message);

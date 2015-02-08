@@ -52,8 +52,21 @@ flangulr.config(['$stateProvider', '$urlRouterProvider', '$locationProvider',
 
 // appwide concerns can be placed on $rootScope where
 // they will be accessible to all child scopes
-flangulr.run(['$rootScope', 'AuthService', '$location', 'FlashService', '$state',
-	function($rootScope, AuthService, $location, FlashService, $state){
+flangulr.run(['$rootScope', 'AuthService', 'FlashService', '$state',
+	function($rootScope, AuthService, FlashService, $state){
+
+		// UNPROTECTED_ROUTES is array of all routes not requiring authentication
+		var UNPROTECTED_ROUTES = ['home', 'login', 'register'];
+
+		var redirectIfNotAuthorized = function(toState){
+			// add current user to root scope and update when routes change
+			$rootScope.user = AuthService.getCurrentUser();
+			// if new $state.current is protected and user is not logged in,
+			// redirect user to login page
+			if(UNPROTECTED_ROUTES.indexOf(toState.name) < 0 && !AuthService.getCurrentUser()){
+				$state.go('login');
+			}
+		};
 
 		// Add $state to $rootScope so it will be accessible everywhere
 		$rootScope.$state = $state;
@@ -61,93 +74,22 @@ flangulr.run(['$rootScope', 'AuthService', '$location', 'FlashService', '$state'
 		// Add FlashService to $rootScope to avoid injecting it in every controller
 		$rootScope.flash = FlashService;
 
-		// UNPROTECTED_ROUTES is array of all routes not requiring authentication
-		var UNPROTECTED_ROUTES = ['/', '/login', '/register'];
-
 		// on form submit, call AuthService's logout function
 		// on success redirect to login page
 		$rootScope.logout = function(){
 			AuthService.logout().success(function(){
-				$location.path('/login');
+				$state.go('login');
 			});
 		};
 
-		// $rootScope listens for $locationChangeStart, an event that is 
-		// broadcast at begining of URL change
-		$rootScope.$on('$locationChangeStart', function(event){
-
-			// add current user to root scope and update when routes change
-			$rootScope.user = AuthService.getCurrentUser();
-
-			// if new $location.path() is protected and user is not logged in,
-			// redirect user to login page
-			if(UNPROTECTED_ROUTES.indexOf($location.path()) < 0 && !AuthService.getCurrentUser()){
-				$location.path('/login');
-			}
+		// $rootScope listens for $stateChangeSuccess, an event that is 
+		// broadcast at the end of state change
+		// its callback takes parameter toState, which will be compared to whitelist
+		// $stateChangeSuccess is used rather than $stateChangeStart because when the app
+		// is initially loaded, there may be no state against which to compare the whitelist
+		$rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams){
+			redirectIfNotAuthorized(toState);
 		});
-	}
-]);
-
-// AuthService handles login/logout by calling SessionService
-authModule.factory('AuthService', ['SessionService', '$http', 'FlashService', 'CacheService',
-	function(SessionService, $http, FlashService, CacheService){
-
-		// private methods; set and unset sessions
-		var cacheSession = function(user){
-			SessionService.set('user', user);
-		};
-
-		var uncacheSession = function(){
-			SessionService.unset('user');
-		};
-
-		// public methods 
-		// use xhr to authenticate against db and store
-		// server side sessions, and return promises that 
-		// can be used in controllers for redirects, etc
-		// login stores contacts data with CacheService
-		return {
-			login: function(credentials){
-				var login = $http.post('/auth/login', credentials);
-				login.success(function(data){
-					cacheSession(data.user);
-					//CacheService.put('contacts', data.contacts);
-					//CacheService.put('tags', data.tags);
-				});
-				login.error(function(data){
-					FlashService.showMessage(data.message);
-				});
-				return login;
-			},
-			logout: function(){
-				var logout = $http.get('/auth/logout');
-				logout.success(function(data){
-					uncacheSession();
-					FlashService.setMessage(data.message);
-				});
-				return logout;
-			},
-			getCurrentUser: function(){
-				return SessionService.get('user');
-			}
-		};
-	}
-]);
-
-// SessionService stores sessions in localStorage
-authModule.factory('SessionService', [
-	function(){
-		return {
-			get: function(key){
-				return localStorage.getItem(key);
-			},
-			set: function(key, value){
-				return localStorage.setItem(key, value);
-			},
-			unset: function(key){
-				return localStorage.removeItem(key);
-			}
-		};
 	}
 ]);
 
@@ -163,7 +105,7 @@ flashModule.factory('FlashService', ['$rootScope',
 			currentMessage = '',
 			currentError = '';
 
-		$rootScope.$on('$locationChangeSuccess', function(){
+		$rootScope.$on('$stateChangeSuccess', function(){
 			currentMessage = messageQueue.shift() || '';
 			errorMessage = errorQueue.shift() || '';
 		});
@@ -171,7 +113,7 @@ flashModule.factory('FlashService', ['$rootScope',
 		// public methods
 		// Note: two methods each for setting error/success messages:
 		// set methods expect route to change and should be used with
-		// $location.path() setter
+		// $state.go()
 		// show methods will show message immediately and should be
 		// used when route will not change
 		// Typically a route will change on success and remain the
@@ -179,7 +121,7 @@ flashModule.factory('FlashService', ['$rootScope',
 		// is not lways the case.
 		return {
 			setMessage: function(message){
-				queue.push(message);
+				messageQueue.push(message);
 			},
 			showMessage: function(message){
 				currentMessage = message;
@@ -188,7 +130,7 @@ flashModule.factory('FlashService', ['$rootScope',
 				return currentMessage;
 			},
 			setError: function(error){
-				queue.push(error);
+				errorQueue.push(error);
 			},
 			showError: function(error){
 				currentError = error;
@@ -305,7 +247,7 @@ homeModule.factory('DataService', ['$http', 'CacheService', '$q', 'AuthService',
 	}
 ]);
 
-homeModule.controller('HomeCtrl', ['$scope', '$location', 'DataService', '$stateParams',
+homeModule.controller('HomeCtrl', ['$scope', '$state', 'DataService', '$stateParams',
 	function($scope, $location, DataService, $stateParams){
 
 		// init entries object
@@ -340,21 +282,21 @@ homeModule.controller('HomeCtrl', ['$scope', '$location', 'DataService', '$state
 		// update entry
 		$scope.updateEntry = function(){
 			DataService.updateEntry($scope.entry.id, $scope.entry).success(function(){
-				$location.path('/');
+				$state.go('home');
 			});
 		};
 
 		// delete entry
 		$scope.deleteEntry = function(){
 			DataService.deleteEntry($scope.entry.id).success(function(){
-				$location.path('/');
+				$state.go('home');
 			});
 		};
 	}
 ]);
 
-loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$location',
-	function($scope, AuthService, $location){
+loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$state',
+	function($scope, AuthService, $state){
 
 		// initialize credentials object
 		$scope.credentials = {};
@@ -363,13 +305,13 @@ loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$location',
 		// on success, redirect to home page
 		$scope.login = function(){
 			AuthService.login($scope.credentials).success(function(){
-				$location.path('/');
+				$state.go('home');
 			});
 		};
 	}
 ]);
 
-registerModule.controller('RegisterCtrl', ['$scope', 'RegisterService', '$location',
+registerModule.controller('RegisterCtrl', ['$scope', 'RegisterService', '$state',
 	function($scope, RegisterService, $location){
 
 		// initialize credentials object
@@ -377,7 +319,7 @@ registerModule.controller('RegisterCtrl', ['$scope', 'RegisterService', '$locati
 
 		$scope.register = function(){
 			RegisterService.registerUser($scope.credentials).success(function(){
-				$location.path('/login');
+				$state.go('login');
 			});
 		};
 	}
@@ -396,6 +338,68 @@ registerModule.factory('RegisterService', ['$http', 'FlashService',
 					FlashService.showError(data.message);
 				});
 				return register;
+			}
+		};
+	}
+]);
+
+// AuthService handles login/logout by calling SessionService
+authModule.factory('AuthService', ['SessionService', '$http', 'FlashService', 'CacheService',
+	function(SessionService, $http, FlashService, CacheService){
+
+		// private methods; set and unset sessions
+		var cacheSession = function(user){
+			SessionService.set('user', user);
+		};
+
+		var uncacheSession = function(){
+			SessionService.unset('user');
+		};
+
+		// public methods 
+		// use xhr to authenticate against db and store
+		// server side sessions, and return promises that 
+		// can be used in controllers for redirects, etc
+		// login stores contacts data with CacheService
+		return {
+			login: function(credentials){
+				var login = $http.post('/auth/login', credentials);
+				login.success(function(data){
+					cacheSession(data.user);
+					FlashService.setMessage(data.message);
+				});
+				login.error(function(data){
+					FlashService.showMessage(data.message);
+				});
+				return login;
+			},
+			logout: function(){
+				var logout = $http.get('/auth/logout');
+				logout.success(function(data){
+					uncacheSession();
+					FlashService.setMessage(data.message);
+				});
+				return logout;
+			},
+			getCurrentUser: function(){
+				return SessionService.get('user');
+			}
+		};
+	}
+]);
+
+// SessionService stores sessions in localStorage
+authModule.factory('SessionService', [
+	function(){
+		return {
+			get: function(key){
+				return localStorage.getItem(key);
+			},
+			set: function(key, value){
+				return localStorage.setItem(key, value);
+			},
+			unset: function(key){
+				return localStorage.removeItem(key);
 			}
 		};
 	}

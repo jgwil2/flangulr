@@ -1,6 +1,6 @@
 
-loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$location',
-	function($scope, AuthService, $location){
+loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$state',
+	function($scope, AuthService, $state){
 
 		// initialize credentials object
 		$scope.credentials = {};
@@ -9,7 +9,7 @@ loginModule.controller('LoginCtrl', ['$scope', 'AuthService', '$location',
 		// on success, redirect to home page
 		$scope.login = function(){
 			AuthService.login($scope.credentials).success(function(){
-				$location.path('/');
+				$state.go('home');
 			});
 		};
 	}
