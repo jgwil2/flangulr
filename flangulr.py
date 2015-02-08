@@ -44,7 +44,6 @@ def register_user():
             [user_name])
     user = [dict(name=row[0]) for row in cur.fetchall()]
     if len(user) > 0:
-        error = 'Username already registered'
         return jsonify(message='Username already registered'), 422
 
     # if no username comes up, insert new and log in
