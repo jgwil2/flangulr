@@ -19,7 +19,7 @@ gulp.task('scripts', function() {
         .pipe(concat('all.js'))
         .pipe(gulp.dest('static/dist'))
         .pipe(rename('all.min.js'))
-        .pipe(uglify())
+        .pipe(uglify()).on('error', errorHandler)
         .pipe(gulp.dest('static/dist'));
 });
 
@@ -42,3 +42,9 @@ gulp.task('watch', function() {
 
 // Default Task
 gulp.task('default', ['lint', 'scripts', 'html', 'watch']);
+
+// Handle the error
+function errorHandler (error) {
+    console.log(error.toString());
+    this.emit('end');
+}
